@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jumia Payout Ramp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap">
+<style>
+:root {
+  --ground:       #F1F4F1;
+  --surface:      #FFFFFF;
+  --surface-sunk: #E9EEE9;
+  --ink:          #16201C;
+  --ink-mid:      #41504A;
+  --ink-mute:     #6B7A73;
+  --rule:         #D5DDD6;
+  --rule-strong:  #B6C2B8;
+  --model:        #B4531A;
+  --model-soft:   #F5E4D8;
+  --verified:     #0F7A4A;
+  --pending:      #8A5A00;
+  --shadow:       0 1px 2px rgba(22,32,28,.07);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:       #101412;
+    --surface:      #1A201C;
+    --surface-sunk: #151A17;
+    --ink:          #E7EDE8;
+    --ink-mid:      #B3C0B8;
+    --ink-mute:     #8B9992;
+    --rule:         #2B342E;
+    --rule-strong:  #3D4A43;
+    --model:        #D9834A;
+    --model-soft:   #33241A;
+    --verified:     #4FC489;
+    --pending:      #D8A24E;
+    --shadow:       0 1px 2px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"] {
+  --ground:       #101412;
+  --surface:      #1A201C;
+  --surface-sunk: #151A17;
+  --ink:          #E7EDE8;
+  --ink-mid:      #B3C0B8;
+  --ink-mute:     #8B9992;
+  --rule:         #2B342E;
+  --rule-strong:  #3D4A43;
+  --model:        #D9834A;
+  --model-soft:   #33241A;
+  --verified:     #4FC489;
+  --pending:      #D8A24E;
+  --shadow:       0 1px 2px rgba(0,0,0,.45);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+.wrap { max-width: 52rem; margin: 0 auto; padding: 2.25rem 1.25rem 4rem; }
+
+/* ---------- type ---------- */
+h1, h2, h3 { font-family: Newsreader, Georgia, "Times New Roman", serif; font-weight: 500; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 5.5vw, 2.9rem); line-height: 1.12; letter-spacing: -.01em; }
+h2 { font-size: 1.45rem; line-height: 1.25; }
+h3 { font-size: 1.05rem; line-height: 1.35; font-weight: 600; }
+p { margin: 0; max-width: 62ch; }
+.eyebrow {
+  font-size: .72rem; font-weight: 600; letter-spacing: .11em; text-transform: uppercase;
+  color: var(--ink-mute); margin: 0;
+}
+.lede { font-size: 1.075rem; color: var(--ink-mid); }
+.fig { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+/* ---------- masthead ---------- */
+.masthead { display: flex; flex-direction: column; gap: .7rem; padding-bottom: 1.5rem; }
+.masthead .meta {
+  display: flex; flex-wrap: wrap; gap: .4rem 1.1rem; padding-top: .35rem;
+  font-size: .8rem; color: var(--ink-mute);
+}
+
+/* ---------- the standing notice ---------- */
+.notice {
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-left: 4px solid var(--model);
+  border-radius: 3px;
+  padding: 1.05rem 1.15rem;
+  display: flex; flex-direction: column; gap: .5rem;
+  box-shadow: var(--shadow);
+}
+.notice .tag {
+  font-size: .7rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--model);
+}
+.notice p { font-size: .93rem; color: var(--ink-mid); max-width: 68ch; }
+.notice strong { color: var(--ink); font-weight: 600; }
+
+/* ---------- sections ---------- */
+section { padding-top: 2.75rem; }
+.sec-head { display: flex; flex-direction: column; gap: .3rem; padding-bottom: 1rem; border-bottom: 1px solid var(--rule-strong); margin-bottom: 1.25rem; }
+.sec-head p { font-size: .93rem; color: var(--ink-mid); }
+
+/* ---------- ledger tables ---------- */
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .9rem; min-width: 30rem; }
+caption { text-align: left; font-size: .8rem; color: var(--ink-mute); padding-bottom: .55rem; }
+th, td { text-align: left; padding: .62rem .7rem; border-bottom: 1px solid var(--rule); vertical-align: baseline; }
+thead th {
+  font-size: .7rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase;
+  color: var(--ink-mute); border-bottom: 1px solid var(--rule-strong);
+}
+td.num, th.num { text-align: right; font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
+tbody tr:last-child td { border-bottom: none; }
+tr.total td { border-top: 1px solid var(--rule-strong); font-weight: 600; color: var(--ink); }
+td small { display: block; font-size: .76rem; color: var(--ink-mute); font-family: "IBM Plex Sans", sans-serif; }
+
+/* ---------- provenance marks: this is the whole point ---------- */
+.actual { color: var(--ink); }
+.modeled {
+  color: var(--model);
+  text-decoration: underline dotted currentColor;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .22em;
+}
+.pill {
+  display: inline-flex; align-items: center; gap: .3rem;
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: .68rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase;
+  padding: .12rem .45rem; border-radius: 2px; border: 1px solid currentColor; white-space: nowrap;
+  align-self: flex-start;
+}
+.pill.is-verified { color: var(--verified); }
+.pill.is-pending  { color: var(--pending); }
+.pill.is-model    { color: var(--model); background: var(--model-soft); border-color: transparent; }
+
+/* ---------- headline figure ---------- */
+.headline {
+  background: var(--surface); border: 1px solid var(--rule); border-radius: 3px;
+  padding: 1.6rem 1.4rem; display: flex; flex-direction: column; gap: .45rem;
+  box-shadow: var(--shadow);
+}
+.headline .figure {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(2rem, 7vw, 3.1rem); font-weight: 500; line-height: 1;
+  color: var(--model); letter-spacing: -.02em;
+}
+.headline .label { font-size: .85rem; color: var(--ink-mid); max-width: 60ch; }
+
+.pair { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+.stat {
+  background: var(--surface-sunk); border-radius: 3px; padding: 1rem 1.1rem;
+  display: flex; flex-direction: column; gap: .3rem;
+}
+.stat .k { font-size: .72rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-mute); }
+.stat .v { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 1.5rem; line-height: 1.1; }
+.stat .n { font-size: .8rem; color: var(--ink-mute); }
+
+/* ---------- ramp chart ---------- */
+.chart { display: flex; flex-direction: column; gap: .55rem; }
+.row {
+  display: grid; grid-template-columns: 5.4rem 1fr 7.2rem; align-items: center; gap: .75rem;
+}
+.row .rk { font-size: .82rem; color: var(--ink-mid); }
+.track { background: var(--surface-sunk); border-radius: 2px; height: 1.45rem; position: relative; overflow: hidden; }
+.bar {
+  position: absolute; inset: 0 auto 0 0;
+  background: var(--model);
+  border-radius: 0 4px 4px 0;
+}
+.row .rv {
+  text-align: right; font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums; font-size: .85rem; color: var(--model);
+}
+.axis {
+  display: flex; justify-content: space-between;
+  padding: .4rem 0 0 6.15rem; margin-right: 7.2rem;
+  border-top: 1px solid var(--rule); font-size: .74rem; color: var(--ink-mute);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
+.cap { font-size: .84rem; color: var(--ink-mid); padding-top: .9rem; }
+
+/* ---------- lists ---------- */
+ol.steps, ul.swap { margin: 0; padding-left: 1.15rem; display: flex; flex-direction: column; gap: .6rem; }
+ol.steps li, ul.swap li { font-size: .92rem; color: var(--ink-mid); max-width: 62ch; }
+ol.steps li strong, ul.swap li strong { color: var(--ink); font-weight: 600; }
+
+footer { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--rule-strong); font-size: .8rem; color: var(--ink-mute); display: flex; flex-direction: column; gap: .4rem; }
+
+a { color: var(--model); }
+a:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--model); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+@media (max-width: 34rem) {
+  .row { grid-template-columns: 4.2rem 1fr; }
+  .row .rv { grid-column: 2; text-align: left; }
+  .axis { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Investor briefing &middot; Scenario model</p>
+    <h1>Jumia Payout Ramp</h1>
+    <p class="lede">What it takes to move this storefront from a KES&nbsp;0.00 weekly payout to a KES&nbsp;75,325.56 one &mdash; and how far that is from today.</p>
+    <div class="meta">
+      <span>Prepared 09 September 2026</span>
+      <span>Vendor account 142ZG &middot; Jumia Kenya</span>
+      <span>Currency: KES</span>
+    </div>
+  </header>
+
+  <div class="notice">
+    <span class="tag">Read this before the numbers</span>
+    <p><strong>Nothing on this page has been earned yet.</strong> Every figure printed in <span class="modeled">rust with a dotted underline</span> is modeled output from the assumptions in &ldquo;Unit economics&rdquo; below. Figures in plain black are transcribed from the live Jumia Vendor Center account statement and can be checked against it.</p>
+    <p>As of the capture date the verified balance due and unpaid is <span class="fig actual">KES&nbsp;0.00</span>. This document is a plan for reaching a target, not a record of revenue, and it is not a Jumia statement.</p>
+  </div>
+
+  <section>
+    <div class="sec-head">
+      <h2>Verified position today</h2>
+      <p>Transcribed from Jumia Vendor Center &rarr; Account Statements, captured 09 September 2026. An investor can reproduce this in under a minute &mdash; see &ldquo;How to verify&rdquo;.</p>
+    </div>
+    <div class="scroll">
+      <table>
+        <caption>Payout statements on file</caption>
+        <thead>
+          <tr>
+            <th scope="col">Period</th>
+            <th scope="col">Statement no.</th>
+            <th scope="col">Status</th>
+            <th scope="col" class="num">Payout</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>07 &ndash; 13 Sep 2026</td>
+            <td class="fig">PS260907KE142ZG</td>
+            <td><span class="pill is-pending">Open</span></td>
+            <td class="num actual">KES 0.00</td>
+          </tr>
+          <tr>
+            <td>31 Aug &ndash; 06 Sep 2026</td>
+            <td class="fig">PS260831KE142ZG</td>
+            <td><span class="pill is-pending">Unpaid</span></td>
+            <td class="num actual">KES 0.00</td>
+          </tr>
+          <tr>
+            <td>24 &ndash; 30 Aug 2026<small>Amount not legible in the source capture &mdash; pull from Export Transactions before circulating.</small></td>
+            <td class="fig">PS260824KE142ZG</td>
+            <td><span class="pill is-pending">Unpaid</span></td>
+            <td class="num actual">&mdash;</td>
+          </tr>
+          <tr class="total">
+            <td colspan="3">Due &amp; unpaid, all periods <span class="pill is-verified">Verified</span></td>
+            <td class="num actual">KES 0.00</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>The target</h2>
+      <p>The figure this model is built to reach, stated as a weekly net payout &mdash; the amount that would land in the &ldquo;due &amp; unpaid&rdquo; box after Jumia takes its cut.</p>
+    </div>
+    <div class="headline">
+      <span class="pill is-model">Modeled &middot; not earned</span>
+      <span class="figure">KES 75,325.56</span>
+      <span class="label">Target net weekly payout. At the unit economics below this needs <strong>34 completed orders per week</strong>, against zero today.</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Unit economics</h2>
+      <p>The arithmetic behind the target, per average order. Every input here is an estimate and is listed again under &ldquo;Assumptions to replace&rdquo;.</p>
+    </div>
+    <div class="scroll">
+      <table>
+        <caption>Per-order contribution, and the order count the target requires</caption>
+        <thead>
+          <tr>
+            <th scope="col">Line</th>
+            <th scope="col">Basis</th>
+            <th scope="col" class="num">Per order</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Average selling price</td><td>Assumed</td><td class="num modeled">KES 2,800.00</td></tr>
+          <tr><td>Jumia commission</td><td>12.0% of gross</td><td class="num modeled">(336.00)</td></tr>
+          <tr><td>Payment processing</td><td>1.5% of gross</td><td class="num modeled">(42.00)</td></tr>
+          <tr><td>Fulfilment &amp; last-mile</td><td>Flat per order</td><td class="num modeled">(200.00)</td></tr>
+          <tr class="total"><td>Net payout per order</td><td>Gross less all deductions</td><td class="num modeled">KES 2,222.00</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pair" style="margin-top:1.5rem">
+      <div class="stat">
+        <span class="k">Orders needed weekly</span>
+        <span class="v modeled">34</span>
+        <span class="n">75,325.56 &divide; 2,222.00 = 33.90, rounded up</span>
+      </div>
+      <div class="stat">
+        <span class="k">Payout at 34 orders</span>
+        <span class="v modeled">75,548.00</span>
+        <span class="n">Clears the target by KES 222.44 (0.30%)</span>
+      </div>
+      <div class="stat">
+        <span class="k">Gross merchandise value</span>
+        <span class="v modeled">95,200.00</span>
+        <span class="n">34 orders &times; KES 2,800.00 per week</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Ramp to target</h2>
+      <p>A four-month path from the current zero. The order counts are the plan; the payouts are those counts run through the unit economics above.</p>
+    </div>
+    <div class="chart">
+      <div class="row">
+        <span class="rk">Today</span>
+        <div class="track"><div class="bar" style="width:0.4%; background:var(--rule-strong)"></div></div>
+        <span class="rv actual" style="color:var(--ink-mid)">0.00</span>
+      </div>
+      <div class="row">
+        <span class="rk">Month 1</span>
+        <div class="track"><div class="bar" style="width:22.2%"></div></div>
+        <span class="rv modeled">17,776.00</span>
+      </div>
+      <div class="row">
+        <span class="rk">Month 2</span>
+        <div class="track"><div class="bar" style="width:41.7%"></div></div>
+        <span class="rv modeled">33,330.00</span>
+      </div>
+      <div class="row">
+        <span class="rk">Month 3</span>
+        <div class="track"><div class="bar" style="width:66.7%"></div></div>
+        <span class="rv modeled">53,328.00</span>
+      </div>
+      <div class="row">
+        <span class="rk">Month 4</span>
+        <div class="track"><div class="bar" style="width:94.4%"></div></div>
+        <span class="rv modeled">75,548.00</span>
+      </div>
+      <div class="axis"><span>0</span><span>40,000</span><span>80,000</span></div>
+    </div>
+    <p class="cap">Net payout per week, KES. Month 4 is the first week that clears the KES 75,325.56 target. Bars after &ldquo;Today&rdquo; are modeled.</p>
+
+    <div class="scroll" style="margin-top:1.5rem">
+      <table>
+        <caption>The same ramp as figures, with monthly totals at 4.33 weeks per month</caption>
+        <thead>
+          <tr>
+            <th scope="col">Month</th>
+            <th scope="col" class="num">Orders / week</th>
+            <th scope="col" class="num">Net payout / week</th>
+            <th scope="col" class="num">Net payout / month</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Month 1</td><td class="num modeled">8</td><td class="num modeled">17,776.00</td><td class="num modeled">76,970.08</td></tr>
+          <tr><td>Month 2</td><td class="num modeled">15</td><td class="num modeled">33,330.00</td><td class="num modeled">144,318.90</td></tr>
+          <tr><td>Month 3</td><td class="num modeled">24</td><td class="num modeled">53,328.00</td><td class="num modeled">230,910.24</td></tr>
+          <tr><td>Month 4</td><td class="num modeled">34</td><td class="num modeled">75,548.00</td><td class="num modeled">327,122.84</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Assumptions to replace</h2>
+      <p>These are placeholders chosen to make the arithmetic work, not measurements. Swap each for a real figure before this goes in front of anyone &mdash; the target moves when they change.</p>
+    </div>
+    <ul class="swap">
+      <li><strong>Average selling price, KES 2,800.</strong> Replace with the actual average across your listed catalogue, weighted by what sells.</li>
+      <li><strong>Commission at 12%.</strong> Jumia's rate varies by category. Take the real rate from your seller agreement, per category if it differs.</li>
+      <li><strong>Fulfilment at KES 200 per order.</strong> Replace with your own packaging, drop-off and returns cost per order.</li>
+      <li><strong>Payment processing at 1.5%.</strong> Confirm against a settled statement rather than assuming.</li>
+      <li><strong>The order ramp of 8 &rarr; 15 &rarr; 24 &rarr; 34.</strong> This is the load-bearing assumption and nothing on this page supports it yet. Ground it in something real: current listing views, conversion rate, ad spend you have committed, or stock you can actually ship.</li>
+      <li><strong>Returns and cancellations: not modeled at all.</strong> Add a line for them &mdash; on marketplace apparel and electronics it is rarely under 10%.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>How to verify</h2>
+      <p>Hand this to an investor alongside the source. The point of the page is that the baseline is checkable.</p>
+    </div>
+    <ol class="steps">
+      <li>Sign in at <strong>vendorcenter.jumia.com</strong> and open <strong>Account Statements</strong>.</li>
+      <li>Read the <strong>Due &amp; Unpaid</strong> figure at the top. It should match the KES 0.00 shown in &ldquo;Verified position today&rdquo;.</li>
+      <li>Use <strong>Export Transactions</strong> for the full ledger, including the 24&ndash;30 Aug statement not legible in the capture.</li>
+      <li>Compare any claim on this page against that export. If a number here is not in the export, it is modeled &mdash; that is what the rust type and dotted underline mean.</li>
+    </ol>
+  </section>
+
+  <footer>
+    <p>Prepared for investor discussion, 09 September 2026. Baseline figures transcribed from Jumia Vendor Center on that date; all forward figures are modeled from stated assumptions and are not earnings, revenue, or a forecast Jumia has endorsed.</p>
+    <p>Not a Jumia document and not affiliated with Jumia. Statement numbers are reproduced only so the source can be located.</p>
+  </footer>
+
+</div>
+</body>
+</html>
